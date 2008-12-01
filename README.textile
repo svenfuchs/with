@@ -1,5 +1,7 @@
 h1. With
 
+*HIGHLY EXPERIMENTAL!*
+
 Heavily inspired by both 
 "context":http://github.com/jeremymcanally/context (Jeremy McAnally) and 
 "context_on_crack":http://github.com/technoweenie/context_on_crack
