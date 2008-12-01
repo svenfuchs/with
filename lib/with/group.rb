@@ -43,9 +43,9 @@ module With
         method_name = generate_test_method_name(context)
         
         target.send :define_method, method_name, &lambda {
-          preconditions.map { |precondition| instance_eval &precondition.block }
-          instance_eval &action.block
-          assertions.map { |assertion| instance_eval &assertion.block }
+          preconditions.map { |precondition| instance_eval &precondition }
+          instance_eval &action
+          assertions.map { |assertion| instance_eval &assertion }
         }
       end
       

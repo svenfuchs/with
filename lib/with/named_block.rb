@@ -6,6 +6,10 @@ module With
       @name = name
       @block = block or raise "need to provide a block for an assertion"
     end
+    
+    def to_proc
+      @block
+    end
   
     def call
       @block.call
