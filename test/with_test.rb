@@ -40,11 +40,11 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class WithTest < Test::Unit::TestCase
   include With
-  
+
   def setup
     @group = Group.new 'main' do
       action { :'called action!' }
-      
+
       with :'context 1.1', :'context 1.2' do
         with :'context 2' do
           it :'assertion 2.1', :with => [:'context 3.1', :'context 3.2'] do end
@@ -52,45 +52,45 @@ class WithTest < Test::Unit::TestCase
           it :'assertion 2.3' do end
         end
       end
-      
-      share :'context 1.1' do 
+
+      share :'context 1.1' do
         before :'precondition 1.1' do end
         it :'shared assertion 1.1.1' do end
-        it :'shared assertion 1.1.2' do end 
+        it :'shared assertion 1.1.2' do end
       end
-      
-      share :'context 1.2' do 
+
+      share :'context 1.2' do
         before :'precondition 1.2' do end
-        it :'shared assertion 1.2' do end 
+        it :'shared assertion 1.2' do end
       end
-      
-      share :'context 2'   do 
+
+      share :'context 2'   do
         before :'precondition 2' do end
-        it :'shared assertion 2' do end 
+        it :'shared assertion 2' do end
       end
-      
-      share :'context 3.1' do 
+
+      share :'context 3.1' do
         before :'precondition 3.1' do end
-        it :'shared assertion 3.1' do end 
+        it :'shared assertion 3.1' do end
       end
-      
-      share :'context 3.2' do 
+
+      share :'context 3.2' do
         before :'precondition 3.2' do end
         it :'shared assertion 3.2' do end
       end
-      
-      share :'context 4', 
-        lambda { 
+
+      share :'context 4',
+        lambda {
           before :'precondition 4.1' do end
-          it :'shared assertion 4.1' do end 
+          it :'shared assertion 4.1' do end
         },
-        lambda { 
+        lambda {
           before :'precondition 4.2' do end
-          it :'shared assertion 4.2' do end 
+          it :'shared assertion 4.2' do end
         }
     end
   end
-  
+
   def test_context_group_tree
     assert_equal ['main'], @group.names
     assert_equal [:'context 1.1', :'context 1.2'], @group.children[0].names
@@ -101,69 +101,69 @@ class WithTest < Test::Unit::TestCase
     assert_equal :'assertion 2.2', @group.children[0].children[0].children[1].assertions.first.name
     assert_equal :'assertion 2.3', @group.children[0].children[0].assertions.first.name
   end
-  
+
   def test_context_group_exapand
     root = @group.send(:expand).first
-  
+
     expected = [:'context 1.1', :'context 1.2']
     assert_equal expected, root.children.map(&:name)
-    
+
     expected = [:'context 2']
     assert_equal expected, root.children[0].children.map(&:name)
-    
+
     expected = [:"context 3.1", :"context 3.2", :"context 4", :"context 4"]
     assert_equal expected, root.children[0].children[0].children.map(&:name)
-    
+
     expected = [:'context 2']
     assert_equal expected, root.children[1].children.map(&:name)
-    
+
     expected = [:"context 3.1", :"context 3.2", :"context 4", :"context 4"]
     assert_equal expected, root.children[1].children[0].children.map(&:name)
   end
-  
+
   def test_context_group_exapanded_collect_assertations
     root = @group.send(:expand).first
-    
+
     expected = [:'shared assertion 1.1.1', :'shared assertion 1.1.2']
     assert_assertions expected, root.children[0]
-    
-    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
+
+    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2",
                 :"shared assertion 2", :"assertion 2.3"]
     assert_assertions expected, root.children[0].children[0]
 
-    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
-                :"shared assertion 2", :"assertion 2.3", 
+    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2",
+                :"shared assertion 2", :"assertion 2.3",
                 :"shared assertion 3.1", :"assertion 2.1"]
     assert_assertions expected, root.children[0].children[0].children[0]
 
-    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
-                :"shared assertion 2", :"assertion 2.3", 
+    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2",
+                :"shared assertion 2", :"assertion 2.3",
                 :"shared assertion 3.2", :"assertion 2.1"]
     assert_assertions expected, root.children[0].children[0].children[1]
 
-    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
-                :"shared assertion 2", :"assertion 2.3", 
+    expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2",
+                :"shared assertion 2", :"assertion 2.3",
                 :"shared assertion 4.1", :"assertion 2.2"]
     assert_assertions expected, root.children[0].children[0].children[2]
 
-    expected = [:"shared assertion 1.2", :"shared assertion 2", 
-                :"assertion 2.3", :"shared assertion 4.1", 
+    expected = [:"shared assertion 1.2", :"shared assertion 2",
+                :"assertion 2.3", :"shared assertion 4.1",
                 :"assertion 2.2"]
     assert_assertions expected, root.children[1].children[0].children[2]
 
-    expected = [:"shared assertion 1.2", :"shared assertion 2", 
-                :"assertion 2.3", :"shared assertion 4.2", 
+    expected = [:"shared assertion 1.2", :"shared assertion 2",
+                :"assertion 2.3", :"shared assertion 4.2",
                 :"assertion 2.2"]
     assert_assertions expected, root.children[1].children[0].children[3]
   end
-  
+
   def test_leafs
     root = @group.send(:expand).first
-    expected = [ :"context 3.1", :"context 3.2", :"context 4", :"context 4", 
+    expected = [ :"context 3.1", :"context 3.2", :"context 4", :"context 4",
                  :"context 3.1", :"context 3.2", :"context 4", :"context 4"]
     assert_equal expected, root.leafs.map(&:name)
   end
-  
+
   def test_calls
     root = @group.send(:expand).first
     calls = root.leafs.first.calls.flatten.map{|c| c.name.to_s.gsub(/ #<.*>/, '')}

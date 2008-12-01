@@ -10,11 +10,11 @@ require 'active_support'
 
 class Article
   attr_reader :errors
-  
+
   def initialize(attributes)
     @attributes = attributes
   end
-  
+
   def save
     @errors = ['title', 'body'] - @attributes.keys
     @errors.empty?
@@ -25,7 +25,7 @@ class User
   def initialize(admin = false)
     @admin = admin
   end
-  
+
   def admin?
     @admin
   end
@@ -34,7 +34,7 @@ end
 class ArticlesController < ActionController::Base
   attr_accessor :current_user
   before_filter :require_admin
-  
+
   def create
     @article = Article.new params
     if @article.save
@@ -46,7 +46,7 @@ class ArticlesController < ActionController::Base
   end
 
   protected
-  
+
     def require_admin
       redirect_to '/login' unless current_user && current_user.admin?
     end
@@ -56,19 +56,34 @@ ActionController::Routing.module_eval do
   set = ActionController::Routing::RouteSet.new
   set.draw {|map| map.articles 'articles', :controller => 'articles', :action => 'create'}
   remove_const :Routes
-  const_set :Routes, set 
+  const_set :Routes, set
 end
 
-# set up some macros
+# set up some macros and share some contexts
 
 class ActionController::TestCase
+  include With
+
   def it_redirects_to(path)
     assert_redirected_to path
   end
-  
+
   def it_assigns_flash(key, pattern)
     assert flash[:error] =~ pattern
   end
+
+  share :login_as_admin do
+    before { @controller.current_user = User.new(true) }
+  end
+
+  share :valid_article_params do
+    before { @params = valid_article_params }
+  end
+
+  # TODO figure out how to reduce this syntax
+  share :invalid_article_params,
+    lambda { before { @params = valid_article_params.except(:title) } },
+    lambda { before { @params = valid_article_params.except(:body) } }
 end
 
 # TODO figure out how to reduce this
@@ -81,43 +96,27 @@ end
 # and now the fun starts ...
 
 class ArticlesControllerTest < ActionController::TestCase
-  extend With
-  
   def valid_article_params
     { :title => 'an article title', :body => 'an article body' }
   end
-  
+
   describe 'POST to :create' do
     action { post :create, @params }
-    
+
     with :login_as_admin do
       it "succeeds", :with => :valid_article_params do
         it_redirects_to 'articles/1'
       end
-      
+
       it "fails", :with => :invalid_article_params do
         it_assigns_flash :error, /missing: (body|title)/
       end
     end
-    
+
     with :login_as_user, :no_login do
       it_redirects_to '/login'
     end
-    
-    # TODO figure out how to move these out of here ...    
-    share :login_as_admin do 
-      before { @controller.current_user = User.new(true) }
-    end
-  
-    share :valid_article_params do
-      before { @params = valid_article_params }
-    end
-    
-    # TODO figure out how to reduce this syntax
-    share :invalid_article_params,
-      lambda { before { @params = valid_article_params.except(:title) } },
-      lambda { before { @params = valid_article_params.except(:body) } }
   end
-  
+
   puts "tests defined: \n  " + instance_methods.grep(/^test_/).join(", \n  ")
 end

@@ -1,34 +1,34 @@
 require File.dirname(__FILE__) + '/test_helper'
 
 class TestUnitWithTest < Test::Unit::TestCase
-  extend With
-  
+  include With
+
   describe 'foo' do
     action { :'called action!' }
-    
+
     with :'context 1', :'context 2' do
       it :'assertion 1', :with => :'context 3' do
         :'called assertion 1'
       end
     end
-    
-    share :'context 1' do 
+
+    share :'context 1' do
       before :'precondition 1' do
         :'called precondition 1'
       end
     end
-    
-    share :'context 2' do 
-      before :'precondition 2' do
-        :'called precondition 2'
-      end
+  end
+
+  share :'context 2' do
+    before :'precondition 2' do
+      :'called precondition 2'
     end
   end
-  
-  @@tests_defined = instance_methods.grep(/^test_/)
+
+  @@tests_defined = instance_methods.grep(/^test_/).map{|name| name.gsub(/test_[\d]*/, 'test')}.sort
 
   def test_with_defined_two_tests
-    names = [ "test_foo_with_context_1_and_with_context_3", 
+    names = [ "test_foo_with_context_1_and_with_context_3",
               "test_foo_with_context_2_and_with_context_3" ]
     assert_equal names, @@tests_defined
   end
