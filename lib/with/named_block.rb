@@ -10,10 +10,5 @@ module With
     def to_proc
       @block
     end
-  
-    def call
-      @block.call
-      name
-    end
   end
 end

@@ -1,5 +1,9 @@
 module With
-  module Dsl    
+  module Dsl
+    def self.included(base)
+      base.send :include, Sharing
+    end
+    
     attr_reader :children
     attr_accessor :parent
 
@@ -26,11 +30,13 @@ module With
       group.assertions << NamedBlock.new(name, &block)
     end
     alias :it :assertion
-  
-    def share(*blocks, &block)
-      name = blocks.shift
-      blocks << block if block
-      @shared[name] = blocks
+    
+    module Sharing
+      def share(*blocks, &block)
+        name = blocks.shift
+        blocks << block if block
+        @shared[name] = blocks
+      end
     end
   end
 end
