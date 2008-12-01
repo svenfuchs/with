@@ -47,92 +47,46 @@ class WithTest < Test::Unit::TestCase
       
       with :'context 1.1', :'context 1.2' do
         with :'context 2' do
-          it :'assertion 2.1', :with => [:'context 3.1', :'context 3.2'] do
-            :'called assertion 2.1'
-          end
-          
-          it :'assertion 2.2', :with => :'context 4' do
-            :'called assertion 2.2'
-          end
-          
-          it :'assertion 2.3' do
-            :'called assertion 2.3'
-          end
+          it :'assertion 2.1', :with => [:'context 3.1', :'context 3.2'] do end
+          it :'assertion 2.2', :with => :'context 4' do end
+          it :'assertion 2.3' do end
         end
       end
       
       share :'context 1.1' do 
-        before :'precondition 1.1' do
-          :'called precondition 1.1'
-        end
-        
-        it :'shared assertion 1.1.1' do
-          :'called shared assertion 1.1.1'
-        end
-        
-        it :'shared assertion 1.1.2' do
-          :'called shared assertion 1.1.2'
-        end 
+        before :'precondition 1.1' do end
+        it :'shared assertion 1.1.1' do end
+        it :'shared assertion 1.1.2' do end 
       end
       
       share :'context 1.2' do 
-        before :'precondition 1.2' do
-          :'called precondition 1.2'
-        end
-        
-        it :'shared assertion 1.2' do
-          :'called shared assertion 1.2'
-        end 
+        before :'precondition 1.2' do end
+        it :'shared assertion 1.2' do end 
       end
       
       share :'context 2'   do 
-        before :'precondition 2' do
-          :'called precondition 2'
-        end
-        
-        it :'shared assertion 2' do
-          :'called shared assertion 2'
-        end 
+        before :'precondition 2' do end
+        it :'shared assertion 2' do end 
       end
       
       share :'context 3.1' do 
-        before :'precondition 3.1' do
-          :'called precondition 3.1'
-        end
-        
-        it :'shared assertion 3.1' do
-          :'called shared assertion 3.1'
-        end 
+        before :'precondition 3.1' do end
+        it :'shared assertion 3.1' do end 
       end
       
       share :'context 3.2' do 
-        before :'precondition 3.2' do
-          :'called precondition 3.2'
-        end
-        
-        it :'shared assertion 3.2' do
-          :'called shared assertion 3.2'
-        end
+        before :'precondition 3.2' do end
+        it :'shared assertion 3.2' do end
       end
       
       share :'context 4', 
         lambda { 
-          before :'precondition 4.1' do
-            :'called precondition 4.1'
-          end
-        
-          it :'shared assertion 4.1' do 
-            :'called shared assertion 4.1' 
-          end 
+          before :'precondition 4.1' do end
+          it :'shared assertion 4.1' do end 
         },
         lambda { 
-          before :'precondition 4.2' do
-            :'called precondition 4.2'
-          end
-        
-          it :'shared assertion 4.2' do 
-            :'called shared assertion 4.2' 
-          end 
+          before :'precondition 4.2' do end
+          it :'shared assertion 4.2' do end 
         }
     end
   end
@@ -212,7 +166,7 @@ class WithTest < Test::Unit::TestCase
   
   def test_calls
     root = @group.send(:expand).first
-    calls = root.leafs.first.calls.flatten.map{|c| c.call.to_s.gsub(/ #<.*>/, '')}
+    calls = root.leafs.first.calls.flatten.map{|c| c.name.to_s.gsub(/ #<.*>/, '')}
     expected = [ "action",
                  "precondition 1.1",
                  "precondition 2",
@@ -225,7 +179,7 @@ class WithTest < Test::Unit::TestCase
                  "assertion 2.1" ]
     assert_equal expected, calls
 
-    calls = root.leafs.last.calls.flatten.map{|c| c.call.to_s.gsub(/ #<.*>/, '') }
+    calls = root.leafs.last.calls.flatten.map{|c| c.name.to_s.gsub(/ #<.*>/, '') }
     expected = [ "action",
                  "precondition 1.2",
                  "precondition 2",
