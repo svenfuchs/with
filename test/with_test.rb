@@ -43,7 +43,7 @@ class WithTest < Test::Unit::TestCase
   include With
   
   def setup
-    @group = describe 'main' do
+    @group = Group.new 'main' do
       action { :'called action!' }
       
       with :'context 1.1', :'context 1.2' do
@@ -150,7 +150,7 @@ class WithTest < Test::Unit::TestCase
   end
   
   def test_context_group_exapand
-    root = @group.expand.first
+    root = @group.send(:expand).first
   
     expected = [:'context 1.1', :'context 1.2']
     assert_equal expected, root.children.map {|child| child.name }
@@ -169,7 +169,7 @@ class WithTest < Test::Unit::TestCase
   end
   
   def test_context_group_exapanded_collect_assertations
-    root = @group.expand.first
+    root = @group.send(:expand).first
     
     expected = [:'shared assertion 1.1.1', :'shared assertion 1.1.2']
     assert_equal expected, root.children[0].collect_assertions.map {|a| a.name }
@@ -205,37 +205,37 @@ class WithTest < Test::Unit::TestCase
   end
   
   def test_leafs
-    root = @group.expand.first
+    root = @group.send(:expand).first
     expected = [ :"context 3.1", :"context 3.2", :"context 4", :"context 4", 
                  :"context 3.1", :"context 3.2", :"context 4", :"context 4"]
     assert_equal expected, root.leafs.map {|c| c.name }
   end
   
-  def test_compile
-    root = @group.expand.first
-    method = root.leafs.first.compile
-    expected = [ "precondition 1.1",
+  def test_calls
+    root = @group.send(:expand).first
+    calls = root.leafs.first.calls.flatten.map{|c| c.call.to_s.gsub(/ #<.*>/, '')}
+    expected = [ "action",
+                 "precondition 1.1",
                  "precondition 2",
                  "precondition 3.1",
-                 "action",
                  "shared assertion 1.1.1",
                  "shared assertion 1.1.2",
                  "shared assertion 2",
                  "assertion 2.3",
                  "shared assertion 3.1",
                  "assertion 2.1" ]
-    assert_equal expected, method.call.map {|result| result.to_s.gsub(/ #<.*>/, '') }
+    assert_equal expected, calls
 
-    method = root.leafs.last.compile
-    expected = [ "precondition 1.2",
+    calls = root.leafs.last.calls.flatten.map{|c| c.call.to_s.gsub(/ #<.*>/, '') }
+    expected = [ "action",
+                 "precondition 1.2",
                  "precondition 2",
                  "precondition 4.2",
-                 "action",
                  "shared assertion 1.2",
                  "shared assertion 2",
                  "assertion 2.3",
                  "shared assertion 4.2",
                  "assertion 2.2" ]
-    assert_equal expected, method.call.map {|result| result.to_s.gsub(/ #<.*>/, '') }
+    assert_equal expected, calls
   end
 end
