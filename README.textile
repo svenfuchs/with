@@ -3,10 +3,11 @@ h1. With
 *HIGHLY EXPERIMENTAL!*
 
 Heavily inspired by both 
-"context":http://github.com/jeremymcanally/context (Jeremy McAnally) and 
+"context":http://github.com/jeremymcanally/context 
+by "Jeremy McAnally":http://github.com/jeremymcanally and 
 "context_on_crack":http://github.com/technoweenie/context_on_crack
 (as well as "rspec_on_rails_on_crack":http://github.com/technoweenie/rspec_on_rails_on_crack)
-(Rick Olson).
+by "Rick Olson":http://github.com/technoweenie.
 
 For some demo code see: runnable "demo controller test":http://github.com/svenfuchs/with/tree/master/test/demo.rb.
 Style and initial motivation: "http://gist.github.com/30436":http://gist.github.com/30436. 
@@ -56,7 +57,7 @@ Shared context blocks can be setup like this:
 
 <pre><code>
   share :login_as_admin do 
-    before { @controller.current_user = User.new(true) }
+    before { @controller.current_user = Admin.new }
   end
   
   share :valid_article_params do
@@ -92,7 +93,7 @@ E.g. some pseudo code for the first generated method above would be:
 <pre><code>
   def test_POST_to_create_with_login_as_admin_and_with_valid_article_params
     # preconditions
-    @controller.current_user = User.new(true)
+    @controller.current_user = Admin.new
     @params = {'title' => 'article title', 'body' => 'article body'}
     
     # action
