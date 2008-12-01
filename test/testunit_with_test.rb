@@ -1,5 +1,4 @@
-$:.unshift File.dirname(__FILE__) + '/../lib/'
-require 'with'
+require File.dirname(__FILE__) + '/test_helper'
 
 class TestUnitWithTest < Test::Unit::TestCase
   extend With

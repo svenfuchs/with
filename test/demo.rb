@@ -1,10 +1,10 @@
-$:.unshift File.dirname(__FILE__) + '/../lib/'
+require File.dirname(__FILE__) + '/test_helper'
+
 require 'rubygems'
 require 'actionpack'
 require 'action_controller'
 require 'action_controller/test_process'
 require 'active_support'
-require 'with'
 
 # setup some fakes so the demo can run
 

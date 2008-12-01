@@ -1,5 +1,4 @@
-$:.unshift File.dirname(__FILE__) + '/../lib/'
-require 'with'
+require File.dirname(__FILE__) + '/test_helper'
 
 # when expanded it sets up the following context tree:
 #
@@ -153,62 +152,62 @@ class WithTest < Test::Unit::TestCase
     root = @group.send(:expand).first
   
     expected = [:'context 1.1', :'context 1.2']
-    assert_equal expected, root.children.map {|child| child.name }
+    assert_equal expected, root.children.map(&:name)
     
     expected = [:'context 2']
-    assert_equal expected, root.children[0].children.map {|child| child.name }
+    assert_equal expected, root.children[0].children.map(&:name)
     
     expected = [:"context 3.1", :"context 3.2", :"context 4", :"context 4"]
-    assert_equal expected, root.children[0].children[0].children.map {|child| child.name }
+    assert_equal expected, root.children[0].children[0].children.map(&:name)
     
     expected = [:'context 2']
-    assert_equal expected, root.children[1].children.map {|child| child.name }
+    assert_equal expected, root.children[1].children.map(&:name)
     
     expected = [:"context 3.1", :"context 3.2", :"context 4", :"context 4"]
-    assert_equal expected, root.children[1].children[0].children.map {|child| child.name }
+    assert_equal expected, root.children[1].children[0].children.map(&:name)
   end
   
   def test_context_group_exapanded_collect_assertations
     root = @group.send(:expand).first
     
     expected = [:'shared assertion 1.1.1', :'shared assertion 1.1.2']
-    assert_equal expected, root.children[0].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[0]
     
     expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
                 :"shared assertion 2", :"assertion 2.3"]
-    assert_equal expected, root.children[0].children[0].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[0].children[0]
 
     expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
                 :"shared assertion 2", :"assertion 2.3", 
                 :"shared assertion 3.1", :"assertion 2.1"]
-    assert_equal expected, root.children[0].children[0].children[0].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[0].children[0].children[0]
 
     expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
                 :"shared assertion 2", :"assertion 2.3", 
                 :"shared assertion 3.2", :"assertion 2.1"]
-    assert_equal expected, root.children[0].children[0].children[1].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[0].children[0].children[1]
 
     expected = [:"shared assertion 1.1.1", :"shared assertion 1.1.2", 
                 :"shared assertion 2", :"assertion 2.3", 
                 :"shared assertion 4.1", :"assertion 2.2"]
-    assert_equal expected, root.children[0].children[0].children[2].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[0].children[0].children[2]
 
     expected = [:"shared assertion 1.2", :"shared assertion 2", 
                 :"assertion 2.3", :"shared assertion 4.1", 
                 :"assertion 2.2"]
-    assert_equal expected, root.children[1].children[0].children[2].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[1].children[0].children[2]
 
     expected = [:"shared assertion 1.2", :"shared assertion 2", 
                 :"assertion 2.3", :"shared assertion 4.2", 
                 :"assertion 2.2"]
-    assert_equal expected, root.children[1].children[0].children[3].collect_assertions.map {|a| a.name }
+    assert_assertions expected, root.children[1].children[0].children[3]
   end
   
   def test_leafs
     root = @group.send(:expand).first
     expected = [ :"context 3.1", :"context 3.2", :"context 4", :"context 4", 
                  :"context 3.1", :"context 3.2", :"context 4", :"context 4"]
-    assert_equal expected, root.leafs.map {|c| c.name }
+    assert_equal expected, root.leafs.map(&:name)
   end
   
   def test_calls
