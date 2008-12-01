@@ -59,18 +59,10 @@ ActionController::Routing.module_eval do
   const_set :Routes, set
 end
 
-# set up some macros and share some contexts
+# share some contexts and set up some macros
 
 class ActionController::TestCase
   include With
-
-  def it_redirects_to(path)
-    assert_redirected_to path
-  end
-
-  def it_assigns_flash(key, pattern)
-    assert flash[:error] =~ pattern
-  end
 
   share :login_as_admin do
     before { @controller.current_user = User.new(true) }
@@ -80,10 +72,25 @@ class ActionController::TestCase
     before { @params = valid_article_params }
   end
 
-  # TODO figure out how to reduce this syntax
-  share :invalid_article_params,
-    lambda { before { @params = valid_article_params.except(:title) } },
-    lambda { before { @params = valid_article_params.except(:body) } }
+  share :invalid_article_params do
+    before { @params = valid_article_params.except(:title) }
+  end
+  
+  share :invalid_article_params do
+    before { @params = valid_article_params.except(:body) }
+  end
+
+  def it_redirects_to(path)
+    assert_redirected_to path
+  end
+
+  def it_assigns_flash(key, pattern)
+    assert flash[:error] =~ pattern
+  end
+
+  def valid_article_params
+    { :title => 'an article title', :body => 'an article body' }
+  end
 end
 
 # TODO figure out how to reduce this
@@ -96,10 +103,6 @@ end
 # and now the fun starts ...
 
 class ArticlesControllerTest < ActionController::TestCase
-  def valid_article_params
-    { :title => 'an article title', :body => 'an article body' }
-  end
-
   describe 'POST to :create' do
     action { post :create, @params }
 

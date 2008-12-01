@@ -43,7 +43,8 @@ module With
       def share(*blocks, &block)
         name = blocks.shift
         blocks << block if block
-        shared[name] = blocks
+        shared[name] ||= []
+        shared[name] += blocks
       end
 
       def shared

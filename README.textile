@@ -73,10 +73,19 @@ them.
 E.g. with a definition like:
 
 <pre><code>
+  # share multiple contexts with the same name:  
+  share :invalid_article_params do
+    before { @params = valid_article_params.except(:title) }
+  end
+  
+  share :invalid_article_params do
+    before { @params = valid_article_params.except(:body) }
+  end
+  
+  # or register them at once:  
   share :invalid_article_params,
     lambda { before { @params = valid_article_params.except(:title) } },
     lambda { before { @params = valid_article_params.except(:body) } }
-  # TODO figure out how to reduce this syntax
 </code></pre>
 
 ... it would generate two methods and test the actual assertions against both 
