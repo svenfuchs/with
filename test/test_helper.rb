@@ -1,4 +1,4 @@
-$:.unshift File.dirname(__FILE__) + '/../lib2/'
+$:.unshift File.dirname(__FILE__) + '/../lib/'
 require 'with'
 
 module GroupSetup
