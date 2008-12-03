@@ -2,12 +2,18 @@ require File.dirname(__FILE__) + '/test_helper'
 
 class TestUnitWithTest < Test::Unit::TestCase
   include With
+
+  share :'context 2' do
+    before :'precondition 2' do
+      :'called precondition 2'
+    end
+  end
   
   describe 'foo' do
     action { :'called action!' }
 
     with :'context 1', :'context 2' do
-      it :'does something', :with => :'context 3' do
+      it 'does something', :with => :'context 3' do
         :'called assertion 1'
       end
     end
@@ -17,11 +23,11 @@ class TestUnitWithTest < Test::Unit::TestCase
         :'called precondition 1'
       end
     end
-  end
 
-  share :'context 2' do
-    before :'precondition 2' do
-      :'called precondition 2'
+    share :'context 3' do
+      before :'precondition 3' do
+        :'called precondition 3'
+      end
     end
   end
 

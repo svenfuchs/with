@@ -60,9 +60,9 @@ module With
         method_name = generate_test_method_name(context)
 
         target.send :define_method, method_name, &lambda {
-          preconditions.map { |precondition| puts precondition.name; instance_eval &precondition }
+          preconditions.map { |precondition| instance_eval &precondition }
           instance_eval &action if action
-          assertions.map { |assertion| puts assertion.name; instance_eval &assertion }
+          assertions.map { |assertion| instance_eval &assertion }
         }
       end
 

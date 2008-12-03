@@ -48,30 +48,35 @@ module With
     end
     
     protected
-
+    
       def expand
+        contexts = use_shared? ? shared_contexts : [to_context]
+        contexts.each do |context|
+          context.append_children children.map{|c| c.expand }.flatten
+        end
+      end
+      
+      def use_shared?
+        names.first.is_a?(Symbol)
+      end
+
+      def shared_group(name)
+        shared[name] || parent && parent.shared_group(name) or raise "could not find shared context #{name.inspect}"
+      end
+      
+      def shared_contexts
         names.map do |name|
-          contexts_for(name).each do |context|
-            context.append_children children.map{|c| c.expand }.flatten
+          shared_group(name).map do |group|
+            group.to_context(@action, preconditions, assertions)
           end
         end.flatten
       end
       
-      def contexts_for(name)
-        # TODO refactor this mess
-        if shared_groups = find_shared(name)
-          shared_groups.map do |g|
-            context = Context.new g.names.first, nil,
-                                  g.preconditions + preconditions.dup,
-                                  g.assertions += assertions.dup
-          end
-        else
-          [Context.new(name, @action, preconditions.dup, assertions.dup)]
-        end
-      end
-
-      def find_shared(name)
-        shared[name] || parent && parent.find_shared(name)
+      def to_context(action = nil, preconditions = [], assertions = [])
+        action ||= @action
+        # raise if there's more than one name?
+        # or maybe better have separate attributes for name and shared_names?
+        Context.new(names.first, action, self.preconditions + preconditions, self.assertions + assertions)
       end
     
       def add_child(*names, &block)

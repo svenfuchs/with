@@ -17,7 +17,7 @@ module With
 
     def describe(name, &block)
       group = Group.new name, &block
-      shared.each {|name, contexts| group.share(name, *contexts) }
+      shared.each {|name, groups| group.share(name, *groups) }
       group.compile(self)
       group
     end

@@ -52,6 +52,6 @@ class GroupTest < Test::Unit::TestCase
   end
   
   def test_records_calls_to_unknown_methods_as_assertions
-    assert_equal :defined_assertion, @group.assertions[0].name.to_sym
+    assert_equal :defined_assertion, @group.assertions[0].name
   end
 end

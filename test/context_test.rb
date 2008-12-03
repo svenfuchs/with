@@ -41,7 +41,7 @@ class GroupExpandedTest < Test::Unit::TestCase
   
   def test_expanded_leafs
     leafs = @expanded.first.leafs
-
+  
     expected = [ "something nested", :nested_context, :nested_context ]
     assert_equal expected, leafs.map(&:name)
     
@@ -51,7 +51,7 @@ class GroupExpandedTest < Test::Unit::TestCase
     result = leafs.map {|leaf| leaf.parents.map(&:name) << leaf.name }
     assert_equal expected, result
   end
-
+  
   def test_collected_assertions
     leafs = @expanded.first.leafs
     expected = [[:defined_assertion, "asserts something", :defined_assertion_in_context, "asserts something nested"], 

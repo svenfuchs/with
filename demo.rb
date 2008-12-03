@@ -68,6 +68,14 @@ class ActionController::TestCase
     before { @controller.current_user = User.new(true) }
   end
 
+  share :login_as_user do
+    before { @controller.current_user = User.new(false) }
+  end
+
+  share :no_login do
+    before { @controller.current_user = nil }
+  end
+
   share :valid_article_params do
     before { @params = valid_article_params }
   end

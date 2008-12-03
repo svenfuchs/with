@@ -38,6 +38,10 @@ module GroupSetup
         end
       end
       
+      share :context do
+        # whatever
+      end
+      
       share :nested_context,
         lambda { before :precondition_in_nested_context_1 do end },
         lambda { before :precondition_in_nested_context_2 do end }
