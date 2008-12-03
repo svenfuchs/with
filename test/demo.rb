@@ -80,7 +80,8 @@ class ActionController::TestCase
     before { @params = valid_article_params.except(:body) }
   end
 
-  def it_redirects_to(path)
+  def it_redirects_to(path = nil, &block)
+    path = instance_eval(&block) if block
     assert_redirected_to path
   end
 
@@ -94,9 +95,11 @@ class ActionController::TestCase
 end
 
 # TODO figure out how to reduce this
-module With::Dsl
-  def it_redirects_to(path)
-    assertion { assert_redirected_to path }
+class With::Group
+  def it_redirects_to(path = nil, &block)
+    assertion do 
+      it_redirects_to(path, &block)
+    end
   end
 end
 
@@ -108,7 +111,7 @@ class ArticlesControllerTest < ActionController::TestCase
 
     with :login_as_admin do
       it "succeeds", :with => :valid_article_params do
-        it_redirects_to 'articles/1'
+        it_redirects_to { 'articles/1' }
       end
 
       it "fails", :with => :invalid_article_params do
@@ -117,7 +120,7 @@ class ArticlesControllerTest < ActionController::TestCase
     end
 
     with :login_as_user, :no_login do
-      it_redirects_to '/login'
+      it_redirects_to { '/login' }
     end
   end
 

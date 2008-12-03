@@ -1,57 +1,85 @@
-require 'with/dsl'
-
 module With
   class Group
-    include Dsl
-
+    include Sharing
+    
+    attr_accessor :parent
     attr_reader :names
 
-    def initialize(*args, &block)
-      options = args.last.is_a?(Hash) ? args.pop : {}
-      @parent = options[:parent]
-      @parent.children << self if @parent
-      @names = args
-
+    def initialize(*names, &block)
+      @names = names
       instance_eval &block if block
     end
 
-    def compile(target)
-      expand.first.leafs.each { |leaf| define_test_method(target, leaf) }
+    def with(*names, &block)
+      options = names.last.is_a?(Hash) ? names.pop : {}
+      group = options[:with] ? with(*options[:with]) : self
+      group.add_child(*names, &block)
+    end
+    alias :it :with
+    
+    def assertion(name = nil, options = {}, &block)
+      assertions << NamedBlock.new(name, &block)
     end
 
+    def before(name = nil, &block)
+      name ||= "before #{block.inspect}"
+      preconditions << NamedBlock.new(name, &block)
+    end
+
+    def action(name = nil, &block)
+      name ||= "action #{block.inspect}"
+      @action = NamedBlock.new(name, &block)
+    end
+
+    def children
+      @children ||= []
+    end
+
+    def preconditions
+      @preconditions ||= []
+    end
+
+    def assertions
+      @assertions ||= []
+    end
+
+    def compile(target)
+      expand.first.compile(target)
+    end
+    
     protected
 
       def expand
         names.map do |name|
-          shared_blocks = find_shared(name) || [nil]
-          shared_blocks.map do |shared|
-            context = Context.new(name, @action, preconditions.dup, assertions.dup, &shared)
-            children.each { |child| context.add_children *child.expand }
-            context
+          contexts_for(name).each do |context|
+            context.append_children children.map{|c| c.expand }.flatten
           end
         end.flatten
+      end
+      
+      def contexts_for(name)
+        if shared_contexts = find_shared(name)
+          shared_contexts.map{|c| c.expand }.flatten
+        else
+          [Context.new(name, @action, preconditions.dup, assertions.dup)]
+        end
       end
 
       def find_shared(name)
         shared[name] || parent && parent.find_shared(name)
       end
-
-      def define_test_method(target, context)
-        action, preconditions, assertions = *context.calls
-        method_name = generate_test_method_name(context)
-
-        target.send :define_method, method_name, &lambda {
-          preconditions.map { |precondition| instance_eval &precondition }
-          instance_eval &action
-          assertions.map { |assertion| instance_eval &assertion }
-        }
+    
+      def add_child(*names, &block)
+        child = Group.new(*names, &block)
+        child.parent = self
+        children << child
+        child
       end
-
-      def generate_test_method_name(context)
-        contexts = context.self_and_parents
-        name = "test_<#{context.object_id}>_#{contexts.shift.name}_"
-        name += contexts.map { |c| "with_#{c.name}" }.join('_and_')
-        name.gsub(/[\W ]/, '_').gsub('__', '_')
+    
+      def method_missing(name, *args, &block)
+        assertion name do
+          send name, *args, &block
+        end
       end
   end
 end

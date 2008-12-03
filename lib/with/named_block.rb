@@ -10,5 +10,9 @@ module With
     def to_proc
       @block
     end
+    
+    def call
+      to_proc.call
+    end
   end
 end
