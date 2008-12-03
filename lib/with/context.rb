@@ -1,7 +1,7 @@
 module With
   class Context
     attr_accessor :parent
-    attr_reader :name, :children
+    attr_reader :name, :children, :action, :assertions, :preconditions
 
     def initialize(name, action, preconditions, assertions, &block)
       @name, @action, @preconditions, @assertions = name, action, [], []
@@ -60,9 +60,9 @@ module With
         method_name = generate_test_method_name(context)
 
         target.send :define_method, method_name, &lambda {
-          preconditions.map { |precondition| instance_eval &precondition }
+          preconditions.map { |precondition| puts precondition.name; instance_eval &precondition }
           instance_eval &action if action
-          assertions.map { |assertion| instance_eval &assertion }
+          assertions.map { |assertion| puts assertion.name; instance_eval &assertion }
         }
       end
 

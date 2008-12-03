@@ -9,7 +9,7 @@ by "Jeremy McAnally":http://github.com/jeremymcanally and
 (as well as "rspec_on_rails_on_crack":http://github.com/technoweenie/rspec_on_rails_on_crack)
 by "Rick Olson":http://github.com/technoweenie.
 
-For some demo code see: runnable "demo controller test":http://github.com/svenfuchs/with/tree/master/test/demo.rb.
+For some demo code see: runnable "demo controller test":http://github.com/svenfuchs/with/tree/master/demo.rb.
 Style and initial motivation: "http://gist.github.com/30436":http://gist.github.com/30436. 
 
 In short the goal of this library is:

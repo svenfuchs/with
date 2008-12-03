@@ -109,6 +109,10 @@ class ArticlesControllerTest < ActionController::TestCase
     
     action { post :create, @params }
     
+    it "passes a common assertion (before block was called)" do
+      assert @artificial_precondition
+    end
+    
     with :login_as_admin do
       it_assigns :article
 
@@ -123,13 +127,6 @@ class ArticlesControllerTest < ActionController::TestCase
 
     with :login_as_user, :no_login do
       it_redirects_to { '/login' }
-    end
-    
-    it "has called the before block" do
-      # TODO remove this extra block
-      assertion do
-        assert @artificial_precondition
-      end
     end
   end
 

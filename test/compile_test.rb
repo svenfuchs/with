@@ -28,8 +28,8 @@ class TestUnitWithTest < Test::Unit::TestCase
   @@tests_defined = instance_methods.grep(/^test_/).map{|name| name.gsub(/test_[\d]*/, 'test')}.sort
 
   def test_with_defined_two_tests
-    names = [ "test_foo_with_context_1_and_with_context_3_and_with_does_something",
-              "test_foo_with_context_2_and_with_context_3_and_with_does_something" ]
+    names = [ "test_foo_with_context_1_and_with_context_3",
+              "test_foo_with_context_2_and_with_context_3" ]
     assert_equal names, @@tests_defined
   end
 end

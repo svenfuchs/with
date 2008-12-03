@@ -11,15 +11,15 @@ module With
     end
 
     def with(*names, &block)
-      options = names.last.is_a?(Hash) ? names.pop : {}
-      group = options[:with] ? with(*options[:with]) : self
-      group.add_child(*names, &block)
+      add_child(*names, &block)
     end
-    alias :it :with
     
     def assertion(name = nil, options = {}, &block)
-      assertions << NamedBlock.new(name, &block)
+      # options = names.last.is_a?(Hash) ? names.pop : {}
+      group = options[:with] ? with(*options[:with]) : self
+      group.assertions << NamedBlock.new(name, &block)
     end
+    alias :it :assertion
 
     def before(name = nil, &block)
       name ||= "before #{block.inspect}"
@@ -58,8 +58,13 @@ module With
       end
       
       def contexts_for(name)
-        if shared_contexts = find_shared(name)
-          shared_contexts.map{|c| c.expand }.flatten
+        # TODO refactor this mess
+        if shared_groups = find_shared(name)
+          shared_groups.map do |g|
+            context = Context.new g.names.first, nil,
+                                  g.preconditions + preconditions.dup,
+                                  g.assertions += assertions.dup
+          end
         else
           [Context.new(name, @action, preconditions.dup, assertions.dup)]
         end

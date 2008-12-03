@@ -22,20 +22,17 @@ class GroupTest < Test::Unit::TestCase
     assert something.is_a?(Group)
     assert nested_context.is_a?(Group)
 
-    assert_equal ['does something'], something.names
+    assert_equal ['something'], something.names
     assert_equal [:nested_context], nested_context.names
     
     # something has one child: something_nested
     assert_equal 1, something.children.size
     something_nested = something.children[0]
     assert something_nested.is_a?(Group)
-    assert_equal ['does something nested'], something_nested.names
+    assert_equal ['something nested'], something_nested.names
     
-    # nested_context has one child: something_nested_innested_context
-    assert_equal 1, nested_context.children.size
-    something_nested_innested_context = nested_context.children[0]
-    assert something_nested_innested_context.is_a?(Group)
-    assert_equal ['does something in nested_context'], something_nested_innested_context.names
+    # nested_context has no children: something_in_nested_context
+    assert_equal 0, nested_context.children.size
   end
   
   def test_sets_action_on_current_group
@@ -54,7 +51,7 @@ class GroupTest < Test::Unit::TestCase
     assert_equal [:unique_precondition], something_nested.preconditions.map(&:name)
   end
   
-  # def test_records_calls_to_unknown_methods_as_assertions
-  #   assert_equal :unknown_assertion, @group.assertions[0].name.to_sym
-  # end
+  def test_records_calls_to_unknown_methods_as_assertions
+    assert_equal :defined_assertion, @group.assertions[0].name.to_sym
+  end
 end

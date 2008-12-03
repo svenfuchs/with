@@ -6,23 +6,36 @@ module GroupSetup
   
   def setup_example_group
     Group.new 'root' do
-      # unknown_assertion :foo, :bar
       action { :action_on_group }
       
       before :common_precondition do end
         
+      defined_assertion
+      
+      it "asserts something" do
+        assert :something
+      end
+      
       with :context do
         action { :action_on_context }
         
         before :shared_precondition do end
         
-        it 'does something' do 
-          it 'does something nested' do
+        with 'something' do 
+          defined_assertion_in_context
+          
+          with 'something nested' do
             before :unique_precondition do end
+
+            it "asserts something nested" do
+              assert :something_nested
+            end
           end
         end
         
-        it 'does something in nested_context', :with => :nested_context do end
+        it 'asserts something in nested_context', :with => :nested_context do 
+          defined_assertion_nested_context
+        end
       end
       
       share :nested_context,
