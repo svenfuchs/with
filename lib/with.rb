@@ -22,4 +22,8 @@ module With
       group
     end
   end
+
+  def it(name, &block)
+    yield
+  end
 end

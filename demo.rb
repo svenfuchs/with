@@ -83,7 +83,7 @@ class ActionController::TestCase
   share :invalid_article_params do
     before { @params = valid_article_params.except(:title) }
   end
-  
+
   share :invalid_article_params do
     before { @params = valid_article_params.except(:body) }
   end
@@ -92,7 +92,7 @@ class ActionController::TestCase
     path = instance_eval(&block) if block
     assert_redirected_to path
   end
-  
+
   def it_assigns(name)
     assert_not_nil @controller.instance_variable_get(:"@#{name}")
   end
@@ -112,20 +112,24 @@ class ArticlesControllerTest < ActionController::TestCase
   describe 'POST to :create' do
     before do
       # set up some preconditions
-      @artificial_precondition = true
+      @before_block_called = true
     end
-    
+
     action { post :create, @params }
-    
-    it "passes a common assertion (before block was called)" do
-      assert @artificial_precondition
+
+    it "has called the before block" do
+      assert @before_block_called
     end
-    
+
     with :login_as_admin do
       it_assigns :article
 
       it "succeeds", :with => :valid_article_params do
         it_redirects_to { 'articles/1' }
+
+        it "can nest assertions" do
+          assert true
+        end
       end
 
       it "fails", :with => :invalid_article_params do

@@ -8,13 +8,17 @@ class TestUnitWithTest < Test::Unit::TestCase
       :'called precondition 2'
     end
   end
-  
+
   describe 'foo' do
     action { :'called action!' }
 
     with :'context 1', :'context 2' do
-      it 'does something', :with => :'context 3' do
+      it 'asserts something', :with => :'context 3' do
         :'called assertion 1'
+
+        it "can nest assertions" do
+          assert true
+        end
       end
     end
 
@@ -34,8 +38,8 @@ class TestUnitWithTest < Test::Unit::TestCase
   @@tests_defined = instance_methods.grep(/^test_/).map{|name| name.gsub(/test_[\d]*/, 'test')}.sort
 
   def test_with_defined_two_tests
-    names = [ "test_foo_with_context_1_and_with_context_3",
-              "test_foo_with_context_2_and_with_context_3" ]
+    names = [ "test_foo_with_context_1_and_with_context_3_it_asserts_something",
+              "test_foo_with_context_2_and_with_context_3_it_asserts_something" ]
     assert_equal names, @@tests_defined
   end
 end
