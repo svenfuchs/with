@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/test/test_helper'
+require File.dirname(__FILE__) + '/test/helper'
 
 require 'rubygems'
 require 'actionpack'
@@ -80,12 +80,20 @@ class ActionController::TestCase
     before { @params = valid_article_params }
   end
 
-  share :invalid_article_params do
+  share :invalid_article_params, 'missing title' do
     before { @params = valid_article_params.except(:title) }
   end
 
-  share :invalid_article_params do
+  share :invalid_article_params, 'missing body' do
     before { @params = valid_article_params.except(:body) }
+  end
+  
+  share :caching do
+    before { @caching = true }
+  end
+  
+  share :observers do
+    before { @observers = true }
   end
 
   def it_redirects_to(path = nil, &block)
@@ -109,6 +117,8 @@ end
 # and now the fun starts ...
 
 class ArticlesControllerTest < ActionController::TestCase
+  with_common :caching, :observers
+  
   describe 'POST to :create' do
     before do
       # set up some preconditions
@@ -117,7 +127,9 @@ class ArticlesControllerTest < ActionController::TestCase
 
     action { post :create, @params }
 
-    it "has called the before block" do
+    it "has called the before blocks" do
+      assert @caching
+      assert @observers
       assert @before_block_called
     end
 
@@ -137,7 +149,7 @@ class ArticlesControllerTest < ActionController::TestCase
       end
     end
 
-    with :login_as_user, :no_login do
+    with [:login_as_user, :no_login] do
       it_redirects_to { '/login' }
     end
   end

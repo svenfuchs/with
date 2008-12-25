@@ -37,7 +37,7 @@ So it allows to write test/unit tests like this:
       end
     end
   
-    with :login_as_user, :no_login do
+    with [:login_as_user, :no_login] do
       it_redirects_to '/login'
     end
   end
