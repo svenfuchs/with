@@ -35,7 +35,7 @@ class Test::Unit::TestCase
   end
 end
 
-class With
+module With
   class Node
     def inspect
       $_INDENT ||= 0

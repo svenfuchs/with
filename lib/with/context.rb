@@ -77,10 +77,10 @@ module With
         contexts = context.parents << context
         assertions = context.calls(:assertion)
         
-        name = "test_#{context.object_id}_#{contexts.shift.name}_"
-        name += contexts.map { |c| "with_#{c.name}_" }.join('and_')
-        name += assertions.map { |a| "it_#{a.name}_" }.join('and_')
-        name.gsub(/\W/, '_').gsub('it_it_', 'it_').gsub('__', '_').gsub('__', '_').gsub(/"|(_$)/, '')
+        name = "test_##{context.object_id}\n#{contexts.shift.name}"
+        name += contexts.map { |c| "\nwith #{c.name} " }.join("and")
+        name += assertions.map { |a| "\nit #{a.name} " }.join("and")
+        name.gsub('_', ' ').gsub('  ', ' ').gsub('it it', 'it') #.gsub('__', '_').gsub('__', '_').gsub(/"|(_$)/, '')
       end
   end
 end

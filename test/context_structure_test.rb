@@ -106,7 +106,7 @@ class ContextStructureTest < Test::Unit::TestCase
     Target.with_common :common
     Target.share(:common){}
     names = context_names [Target.describe('bar'){ with 'foo' }]
-    assert_equal [[[:common, 'bar', 'foo']]], names
+    assert_equal [[['bar', :common, 'foo']]], names
   end
   
   def test_different_nested_contexts_with_common_shared_parent
@@ -116,6 +116,6 @@ class ContextStructureTest < Test::Unit::TestCase
       with(:bar){ assertion('renders :edit'){} } 
     end.first
     assert_equal 'renders :new', context.children[0].calls(:assertion)[0].name
-    assert_equal 'renders :edit', context.children[1].calls(:assertion)[1].name
+    assert_equal 'renders :edit', context.children[1].calls(:assertion)[0].name
   end
 end

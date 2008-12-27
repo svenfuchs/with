@@ -17,7 +17,7 @@ module With
     end
     
     def describe(name, &block)
-      context = Context.build(*with_common + [name], &block).first
+      context = Context.build(name, *with_common, &block).first
       context.compile(self)
       context
     end
@@ -46,3 +46,5 @@ module With
     yield
   end
 end
+
+Test::Unit::TestCase.send :include, With

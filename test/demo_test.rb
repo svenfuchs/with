@@ -52,11 +52,11 @@ class DemoTest < Test::Unit::TestCase
     #puts; puts Target.instance_methods.grep(/^test_/).join(", \n  ")
     assert_equal 5, methods.count
 
-    expected = [[[:caching, :observers, 'POST to :create', :login_as_admin, :valid_article_params],
-                 [:caching, :observers, 'POST to :create', :login_as_admin, :invalid_article_params],
-                 [:caching, :observers, 'POST to :create', :login_as_admin, :invalid_article_params],
-                 [:caching, :observers, 'POST to :create', :login_as_user],
-                 [:caching, :observers, 'POST to :create', :no_login]]]
+    expected = [[['POST to :create', :caching, :observers, :login_as_admin, :valid_article_params],
+                 ['POST to :create', :caching, :observers, :login_as_admin, :invalid_article_params],
+                 ['POST to :create', :caching, :observers, :login_as_admin, :invalid_article_params],
+                 ['POST to :create', :caching, :observers, :login_as_user],
+                 ['POST to :create', :caching, :observers, :no_login]]]
     assert_equal expected, context_names([context])
     
   end
