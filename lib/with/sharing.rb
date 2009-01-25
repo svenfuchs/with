@@ -1,8 +1,11 @@
 module With
   module Sharing
     def share(group, name = nil, &block)
+      context = Context.new(name || group, &block)
+      context.instance_eval &block if block
+      
       self.shared[group] ||= []
-      self.shared[group] << Context.new(name || group, &block)
+      self.shared[group] << context
     end
 
     def shared(name = nil)

@@ -118,4 +118,25 @@ class ContextStructureTest < Test::Unit::TestCase
     assert_equal 'renders :new', context.children[0].calls(:assertion)[0].name
     assert_equal 'renders :edit', context.children[1].calls(:assertion)[0].name
   end
+  
+  def test_node_knows_its_filename_and_linenumber
+    context = With::Context.build('foo'){ }.first
+    assert_equal __FILE__, context.send(:file)
+    assert_equal __LINE__ - 2, context.send(:line)
+  end
+  
+  def test_select_finds_nodes_with_a_block_matching
+    context = With::Context.build('foo'){ 
+      with('bar'){}
+    }.first.select { |block| block.send(:line) == __LINE__ - 1 }.first
+    assert_equal 'bar', context.name
+  end
+  
+  def test_implemented_at_returns_true_when_context_or_call_is_implemented_at_given_file_and_line
+    context = With::Context.build('foo'){ 
+      with('bar'){}
+    }.first
+    assert context.implemented_at?(:file => __FILE__, :line => __LINE__ - 3)
+    assert context.children.first.implemented_at?(:file => __FILE__, :line => __LINE__ - 3)
+  end
 end

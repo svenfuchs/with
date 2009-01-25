@@ -48,8 +48,8 @@ class DemoTest < Test::Unit::TestCase
       end
     end
     
-    methods = Target.instance_methods.grep(/^test_/)
-    #puts; puts Target.instance_methods.grep(/^test_/).join(", \n  ")
+    methods = Target.instance_methods.grep(/^test/)
+    #puts; puts Target.instance_methods.grep(/^test/).join(", \n  ")
     assert_equal 5, methods.count
 
     expected = [[['POST to :create', :caching, :observers, :login_as_admin, :valid_article_params],

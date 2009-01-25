@@ -1,9 +1,12 @@
 module With
   class Node
-    attr_accessor :name, :parent, :children
+    include Implementation
     
-    def initialize(name = nil)
+    attr_accessor :name, :parent, :children, :calls
+    
+    def initialize(name = nil, &block)
       @name = name
+      @block = block
       @children = []
       @calls = {}
     end
@@ -14,6 +17,16 @@ module With
       @calls = {}
       orig.calls.each { |key, calls| @calls[key] = calls.map{ |call| call.clone } }
     end
+    
+    def define(&block)
+      @block = block
+      instance_eval &block
+    end
+    
+    # def select(&block)
+    #   result = yield(self) ? [self] : [] #  || !@calls.select(&block).empty?
+    #   result += @children.map { |child| child.select(&block) }.flatten
+    # end
     
     def filter(conditions)
       if With.applies?(parents.map(&:name), conditions)
@@ -46,9 +59,7 @@ module With
     end
 
     def append_children(children)
-      leafs.each do |leaf| 
-        children.each {|child| leaf.add_child(child.dup) }
-      end
+      leafs.each { |leaf| children.each {|child| leaf.add_child(child.dup) } }
     end
   end
 end

@@ -2,6 +2,8 @@ module With
   extend Sharing
 
   class Call
+    include Implementation
+    
     attr_reader :name, :block
   
     def initialize(name, conditions = {}, &block)
@@ -9,10 +11,7 @@ module With
       
       @name = name
       @conditions = conditions
-      @block = Proc.new {
-        @_with_current_context = name
-        instance_eval &block
-      }
+      @block = block
     end
     
     def applies?(context)
@@ -21,7 +20,11 @@ module With
     end
     
     def to_proc
-      @block
+      name, block = self.name, self.block
+      Proc.new {
+        @_with_current_context = name
+        instance_eval &block
+      }
     end
     
     def call

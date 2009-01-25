@@ -35,13 +35,13 @@ class ContextCallsTest < Test::Unit::TestCase
     contexts = With::Context.build('foo'){ assertion('assertion', :with => :bar){ }}
     assert_equal [[['foo', :bar]]], context_names(contexts)
   end
-
+  
   def test_wraps_missing_method_call_into_shared_context
     With.share(:bar){ }
     contexts = With::Context.build('foo'){ assert(true, :with => :bar){ }}
     assert_equal [[['foo', :bar]]], context_names(contexts)
   end
-
+  
   def test_registers_explicit_call_with_in_condition
     context = With::Context.build('foo'){ before('before', :in => 'foo'){ }}.first
     assert_equal 'foo', context.calls(:before).first.instance_variable_get(:@conditions)[:in]

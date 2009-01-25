@@ -3,13 +3,14 @@ require File.dirname(__FILE__) + '/helper'
 class ContextCompileTest < Test::Unit::TestCase
   def setup
     Target.reset
+    With.shared.clear
   end
   
   def call(context)
     context.compile(Target)
     target = Target.new
-  
-    target.methods.select{|m| m =~ /^test_/ }.sort.reverse.inject([]) do |called, method| 
+
+    target.methods.select{|m| m =~ /^test/ }.sort.reverse.inject([]) do |called, method| 
       target.send(method)
       called << target.called.dup
       target.called.clear
@@ -102,17 +103,4 @@ class ContextCompileTest < Test::Unit::TestCase
     
     assert_equal expected, call(context)
   end
-  
-  # def test_compile_shared_backtrace
-  #   collector = lambda { @trace = caller; break! }
-  #   With.share(:shared, 'shared') { before 'shared_before', &collector }
-  #   context = With::Context.build('foo', :shared){}.first
-  #   context.compile(Target)
-  #   target = Target.new
-  # 
-  #   target.methods.select{|m| m =~ /^test_/ }.sort.reverse.inject([]) do |called, method| 
-  #     target.send(method)
-  #     target.instance_variable_get(:@trace).each { |line| puts line }
-  #   end
-  # end
 end

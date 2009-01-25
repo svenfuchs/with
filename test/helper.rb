@@ -4,26 +4,33 @@ require 'with'
 class Target
   include With
   
-  class << self
-    def reset
-      With.shared.clear
-      with_common.clear
-      instance_methods.select{|m| m =~ /^test_/ }.each {|m| Target.send(:remove_method, m) }
-    end
-  end
-  
   def called
     @called ||= []
-  end
-  
-  def with?(name)
-    @_with_contexts.include?(name)
   end
 end
 
 class Symbol
   def to_proc
     Proc.new { |*args| args.shift.__send__(self, *args) }
+  end
+end
+
+class Array
+  def to_sentence
+    case length
+      when 0
+        ""
+      when 1
+        self[0].to_s
+      else
+        "#{self[0...-1].join(', ')} and #{self[-1]}"
+    end
+  end
+end
+
+class Hash
+  def slice(*keys)
+    Hash[*keys.map { |key| [key, self[key]] if has_key?(key) }.flatten.compact]
   end
 end
 

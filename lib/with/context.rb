@@ -6,21 +6,16 @@ module With
         
         names.each do |names| 
           children = Array(names).map do |name| 
-            name.is_a?(Symbol) ? With.shared(name) : new(name)
+            name.is_a?(Symbol) ? With.shared(name) : new(name, &block)
           end.flatten
           context.append_children children
         end
         
         context.children.each do |child|
           child.parent = nil
-          child.leafs.each { |leaf| leaf.instance_eval(&block) } if block
+          child.leafs.each { |leaf| leaf.define(&block) } if block
         end
       end
-    end
-    
-    def initialize(name = nil, &block)
-      super(name)
-      instance_eval &block if block
     end
     
     def with(*names, &block)
@@ -42,8 +37,9 @@ module With
     alias :expect :before
     alias :it :assertion
 
-    def compile(target)
-      leafs.each { |leaf| define_test_method(target, leaf) }
+    def compile(target, options = {})
+      file, line = With.options[:file], With.options[:line]
+      leafs.each { |leaf| define_test_method(target, leaf) if leaf.implemented_at?(file, line) }
     end
     
     protected
@@ -54,12 +50,17 @@ module With
           [:with, :in, :not_in].each { |key| options[key] = args.last.delete(key) }
           args.pop if args.last.empty?
         end
-        assertion ([method_name] << args.map(&:inspect)).join('_'), options do
-          send method_name, *args, &block
+
+        if Test::Unit::TestCase.method_defined?(method_name)
+          assertion ([method_name] << args.map(&:inspect)).join('_'), options do
+            send method_name, *args, &block
+          end
+        else
+          lambda { send method_name, *args, &block }
         end
       end
 
-      def define_test_method(target, context)
+      def define_test_method(target, context, options = {})
         method_name = generate_test_method_name(context)
         target.send :define_method, method_name, &lambda {
           @_with_contexts = (context.parents << context).map(&:name)
@@ -70,17 +71,14 @@ module With
         }
       end
 
-      # TODO urghs. super ugly and doesn't even really work well.
-      # Need some better ideas for generating readable method names.
-      # Maybe even play with method names containing \n characters?
       def generate_test_method_name(context)
         contexts = context.parents << context
         assertions = context.calls(:assertion)
         
         name = "test_##{context.object_id}\n#{contexts.shift.name}"
-        name += contexts.map { |c| "\nwith #{c.name} " }.join("and")
-        name += assertions.map { |a| "\nit #{a.name} " }.join("and")
-        name.gsub('_', ' ').gsub('  ', ' ').gsub('it it', 'it') #.gsub('__', '_').gsub('__', '_').gsub(/"|(_$)/, '')
+        name += "\n  with " + contexts.map(&:name).to_sentence
+        name += "\n  it " + assertions.map(&:name).to_sentence
+        name.gsub('_', ' ').gsub('  ', ' ').gsub('it it', 'it')
       end
   end
 end
